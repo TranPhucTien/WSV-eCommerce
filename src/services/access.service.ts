@@ -1,10 +1,10 @@
-import {Error} from "mongoose";
 import shopModule from "../models/shop.module";
 import bcrypt from "bcrypt"
 import crypto from "node:crypto"
 import KeyTokenService from "./keyToken.service";
 import {createTokenPair} from "../auth/authUtils";
-import { getInfoData } from "../utils"
+import {getInfoData} from "../utils"
+import {BadRequestError, NotFoundError} from "../core/error.response";
 
 const RoleShop = {
     SHOP: "SHOP",
@@ -15,69 +15,52 @@ const RoleShop = {
 
 class AccessService {
     static signUp = async ({name, email, password}: { name: string, email: string, password: string }) => {
-        try {
-            // step 1: check email exits?
-            const holderShop = await shopModule.findOne({email}).lean();
+        // step 1: check email exits?
+        const holderShop = await shopModule.findOne({email}).lean();
 
-            if (holderShop) {
-                return {
-                    code: 'xxx',
-                    message: 'Shop already registered!'
-                }
-            }
+        if (holderShop) {
+            throw new BadRequestError("Error: Shop already registered")
+        }
 
-            const passwordHash = await bcrypt.hash(password, 10)
+        const passwordHash = await bcrypt.hash(password, 10)
 
-            const newShop = await shopModule.create({
-                name, email, password: passwordHash, roles: [RoleShop.SHOP]
-            })
+        const newShop = await shopModule.create({
+            name, email, password: passwordHash, roles: [RoleShop.SHOP]
+        })
 
-            if (newShop) {
-                const privateKey = crypto.randomBytes(64).toString('hex');
-                const publicKey = crypto.randomBytes(64).toString('hex');
+        if (!newShop) {
+            throw new NotFoundError("Error: Create shop failed")
+        }
 
-                console.log({privateKey, publicKey}) // save collection KeyStore
+        const privateKey = crypto.randomBytes(64).toString('hex');
+        const publicKey = crypto.randomBytes(64).toString('hex');
 
-                const keyStore = await KeyTokenService.createKeyToken({
-                    userId: newShop._id,
-                    publicKey,
-                    privateKey
-                })
+        console.log({privateKey, publicKey}) // save collection KeyStore
 
-                if (!keyStore) {
-                    return {
-                        code: 'xxx',
-                        message: 'keyStore error'
-                    }
-                }
+        const keyStore = await KeyTokenService.createKeyToken({
+            userId: newShop._id,
+            publicKey,
+            privateKey
+        })
 
-                // created token pair
-                const tokens = await createTokenPair(
-                    {
-                        userId: newShop._id,
-                        email
-                    }, publicKey, privateKey);
-                console.log(`Created Token Success::`, tokens)
-                const shopFields = ['_id', 'name', 'email'];
+        if (!keyStore) {
+            throw new NotFoundError("Error: Key store not found")
+        }
 
-                return {
-                    code: 201,
-                    metadata: {
-                        shop: getInfoData({ fields: shopFields, object: newShop}),
-                        tokens
-                    }
-                }
-            }
+        // created token pair
+        const tokens = await createTokenPair(
+            {
+                userId: newShop._id,
+                email
+            }, publicKey, privateKey);
+        console.log(`Created Token Success::`, tokens)
+        const shopFields = ['_id', 'name', 'email'];
 
-            return {
-                code: 200,
-                metadata: null
-            }
-        } catch (e) {
-            return {
-                code: "xxx",
-                message: (e as Error).message,
-                status: 'error'
+        return {
+            code: 201,
+            metadata: {
+                shop: getInfoData({fields: shopFields, object: newShop}),
+                tokens
             }
         }
     }

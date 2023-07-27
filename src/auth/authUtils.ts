@@ -1,5 +1,6 @@
 import JWT from "jsonwebtoken";
 import { Types } from "mongoose"
+import {NextFunction, Request, Response} from "express";
 
 const createTokenPair = async (payload: {userId: Types.ObjectId, email: string}, publicKey: JWT.Secret, privateKey: JWT.Secret) => {
     try {
@@ -26,6 +27,13 @@ const createTokenPair = async (payload: {userId: Types.ObjectId, email: string},
     }
 }
 
+const asyncHandler = (fn: Function) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        fn(req, res, next).catch(next)
+    }
+}
+
 export {
-    createTokenPair
+    createTokenPair,
+    asyncHandler
 }

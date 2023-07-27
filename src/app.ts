@@ -6,6 +6,7 @@ import connectDb from "./dbs/init.mongodb"
 import {checkOverload} from "./helpers/check.connect";
 import dotenv from "dotenv";
 import routers from "./routers";
+import {ErrorResponse} from "./core/error.response";
 
 dotenv.config();
 
@@ -29,5 +30,20 @@ connectDb;
 app.use('/', routers)
 
 // handling error
+app.use((req, res, next) => {
+    const error = new ErrorResponse("Not Found");
+    error.status = 404
+    next(error)
+})
+
+app.use((error: ErrorResponse, req: Request, res: Response, next: NextFunction) => {
+    const statusCode = error.status || 500;
+
+    return res.status(statusCode).json({
+        status: "error",
+        code: statusCode,
+        message: error.message || 'Internal server error'
+    })
+})
 
 export default app;
