@@ -2,17 +2,28 @@ import crypto from "crypto";
 import keyTokenModule from "../models/keyToken.module";
 import { Types } from "mongoose";
 
+interface IKeyToken {
+    userId: string,
+    publicKey: string,
+    privateKey: string,
+    refreshToken?: string | null
+}
+
 class KeyTokenService {
 
-    static  createKeyToken = async  ({ userId, publicKey, privateKey }: { userId: Types.ObjectId, publicKey: string, privateKey: string}) : Promise<string | null> => {
+    static  createKeyToken = async  ({ userId, publicKey, privateKey, refreshToken }: IKeyToken) : Promise<string | null> => {
         try {
-            const tokens = await keyTokenModule.create({
-                user: userId,
+            const filter = {user: new Types.ObjectId(userId)};
+            const update = {
                 publicKey,
-                privateKey
-            })
+                privateKey,
+                refreshTokenUsed: [],
+                refreshToken
+            }
+            const options = { upsert: true, new: true }
 
-            return tokens ? tokens.publicKey : null;
+            const tokens = await keyTokenModule.findOneAndUpdate(filter, update, options)
+            return tokens ? tokens.publicKey : null
         } catch (e) {
             return (e as Error).message;
         }

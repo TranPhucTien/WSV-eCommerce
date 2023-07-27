@@ -2,7 +2,12 @@ import JWT from "jsonwebtoken";
 import { Types } from "mongoose"
 import {NextFunction, Request, Response} from "express";
 
-const createTokenPair = async (payload: {userId: Types.ObjectId, email: string}, publicKey: JWT.Secret, privateKey: JWT.Secret) => {
+interface ITokenPair {
+    accessToken: string | null,
+    refreshToken: string | null
+}
+
+const createTokenPair = async (payload: {userId: Types.ObjectId, email: string}, publicKey: JWT.Secret, privateKey: JWT.Secret) : Promise<ITokenPair> => {
     try {
         // access token
         const accessToken = JWT.sign(payload, publicKey, {
@@ -23,7 +28,7 @@ const createTokenPair = async (payload: {userId: Types.ObjectId, email: string},
 
         return { accessToken, refreshToken }
     } catch (e) {
-
+        return { accessToken: null, refreshToken: null }
     }
 }
 

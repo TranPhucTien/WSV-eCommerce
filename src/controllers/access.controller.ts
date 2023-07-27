@@ -1,9 +1,16 @@
 import {NextFunction, Request, Response} from "express";
 import AccessService from "../services/access.service";
-import {CREATED} from "../core/success.response";
+import {CREATED, OK} from "../core/success.response";
 import accessService from "../services/access.service";
 
 class AccessController {
+
+    login = async (req: Request, res: Response, next: NextFunction) => {
+        new OK({
+            message: "Login success",
+            metadata: await accessService.login(req.body)
+        }).send(res)
+    }
 
     signUp = async (req: Request, res: Response, next: NextFunction) => {
         new CREATED({
