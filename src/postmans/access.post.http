@@ -9,10 +9,22 @@ x-api-key: 8a40c24d5d8f57c333d56637859cedf09aae0c5806fd4e54b42c541bcae85c7eef593
   "password": "123123"
 }
 
-### signup
+### login
 POST {{url}}/shop/login
 Content-Type: application/json
 x-api-key: 8a40c24d5d8f57c333d56637859cedf09aae0c5806fd4e54b42c541bcae85c7eef593a741e17876e4690a1f365a581f3f23006d44c563834a738758e008e1c26
+
+{
+  "email": "shoptipjs09@gmail.com",
+  "password": "123123"
+}
+
+### logout
+POST {{url}}/shop/logout
+Content-Type: application/json
+x-api-key: 8a40c24d5d8f57c333d56637859cedf09aae0c5806fd4e54b42c541bcae85c7eef593a741e17876e4690a1f365a581f3f23006d44c563834a738758e008e1c26
+x-client-id: 64c295041b89613bbad30566
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGMyOTUwNDFiODk2MTNiYmFkMzA1NjYiLCJlbWFpbCI6InNob3B0aXBqczA5QGdtYWlsLmNvbSIsImlhdCI6MTY5MDUyODE5NywiZXhwIjoxNjkwNzAwOTk3fQ.aZKScxCxu4XYoyLbfJERP9C-ImdKimIqtsP1hLn9Exg
 
 {
   "email": "shoptipjs09@gmail.com",

@@ -1,12 +1,14 @@
 import shopModule from "../models/shop.module";
 import bcrypt from "bcrypt"
 import crypto from "node:crypto"
-import KeyTokenService from "./keyToken.service";
+import KeyTokenService, {IKeyTokenPayload} from "./keyToken.service";
 import {createTokenPair} from "../auth/authUtils";
 import {getInfoData} from "../utils"
 import {AuthFailureError, BadRequestError, NotFoundError} from "../core/error.response";
 import ShopService from "./shop.service";
 import ShopModule from "../models/shop.module";
+import keyTokenService from "./keyToken.service";
+import KeyTokenModule, {IKeyToken} from "../models/keyToken.module";
 
 const RoleShop = {
     SHOP: "SHOP",
@@ -16,6 +18,14 @@ const RoleShop = {
 }
 
 class AccessService {
+    static logout = async ({keyStore} : {keyStore: IKeyToken}) => {
+        console.log({keyStore})
+        const delKey = await keyTokenService.removeKeyById(keyStore._id.toString());
+        console.log({delKey})
+        return delKey;
+    }
+
+
     static login = async ({email, password, refreshToken = null} : {email: string, password: string, refreshToken: string | null}) => {
         // 1. Check email in db
         const foundShop = await ShopService.findByEmail({email});

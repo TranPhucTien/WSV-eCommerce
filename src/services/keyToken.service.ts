@@ -1,8 +1,7 @@
-import crypto from "crypto";
 import keyTokenModule from "../models/keyToken.module";
-import { Types } from "mongoose";
+import {Types} from "mongoose";
 
-interface IKeyToken {
+export interface IKeyTokenPayload {
     userId: string,
     publicKey: string,
     privateKey: string,
@@ -11,7 +10,12 @@ interface IKeyToken {
 
 class KeyTokenService {
 
-    static  createKeyToken = async  ({ userId, publicKey, privateKey, refreshToken }: IKeyToken) : Promise<string | null> => {
+    static createKeyToken = async ({
+                                       userId,
+                                       publicKey,
+                                       privateKey,
+                                       refreshToken
+                                   }: IKeyTokenPayload): Promise<string | null> => {
         try {
             const filter = {user: new Types.ObjectId(userId)};
             const update = {
@@ -20,13 +24,21 @@ class KeyTokenService {
                 refreshTokenUsed: [],
                 refreshToken
             }
-            const options = { upsert: true, new: true }
+            const options = {upsert: true, new: true}
 
             const tokens = await keyTokenModule.findOneAndUpdate(filter, update, options)
             return tokens ? tokens.publicKey : null
         } catch (e) {
             return (e as Error).message;
         }
+    }
+
+    static findByUserId = async (userId: string) => {
+        return await keyTokenModule.findOne({user: new Types.ObjectId(userId)}).lean().exec();
+    }
+
+    static removeKeyById = async (id: string) => {
+        return await keyTokenModule.findOneAndRemove(new Types.ObjectId(id)).exec();
     }
 }
 

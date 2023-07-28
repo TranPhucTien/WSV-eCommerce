@@ -8,10 +8,7 @@ const HEADER = {
 
 const apiKey = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log("req.headers: ", req.headers)
-        console.log(HEADER.API_KEY)
         const key = req.headers[HEADER.API_KEY]?.toString();
-        console.log(key, typeof key)
 
         if (!key) {
             return res.status(403).json({
@@ -20,7 +17,6 @@ const apiKey = async (req: Request, res: Response, next: NextFunction) => {
         }
 
         const objKey = await findById(key);
-        console.log("objKeu: ", objKey)
 
         if (!objKey) {
             return res.status(403).json({
