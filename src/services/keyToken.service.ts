@@ -5,7 +5,8 @@ export interface IKeyTokenPayload {
     userId: string,
     publicKey: string,
     privateKey: string,
-    refreshToken?: string | null
+    refreshToken?: string | null,
+    email?: string | null,
 }
 
 class KeyTokenService {
@@ -39,6 +40,18 @@ class KeyTokenService {
 
     static removeKeyById = async (id: string) => {
         return await keyTokenModule.findOneAndRemove(new Types.ObjectId(id)).exec();
+    }
+
+    static findByRefreshTokenUsed = async (refreshToken: string) => {
+        return await keyTokenModule.findOne({ refreshTokensUsed: refreshToken}).exec();
+    }
+
+    static findByRefreshToken = async (refreshToken: string) => {
+        return await keyTokenModule.findOne({ refreshToken }).exec();
+    }
+
+    static deleteKeyById = async (userId: string) => {
+        return await keyTokenModule.deleteOne({user: new Types.ObjectId(userId)}).exec();
     }
 }
 

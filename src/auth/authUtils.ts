@@ -69,6 +69,7 @@ const authentication = asyncHandler(async (req: Request, res: Response, next: Ne
 
         // 5. check key store with this userId
         req.keyStore = keyStore;
+        req.user = decodeUser; // {userId, email}
 
         // 6. Ok all
         return next()
@@ -77,7 +78,12 @@ const authentication = asyncHandler(async (req: Request, res: Response, next: Ne
     }
 })
 
+const verifyJWT = (token: string, keySecret: string)=> {
+    return JWT.verify(token, keySecret);
+}
+
 export {
     createTokenPair,
-    authentication
+    authentication,
+    verifyJWT
 }

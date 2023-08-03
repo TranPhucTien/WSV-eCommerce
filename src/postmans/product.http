@@ -1,0 +1,43 @@
+### create
+POST {{url}}/product
+Content-Type: application/json
+x-api-key: 8a40c24d5d8f57c333d56637859cedf09aae0c5806fd4e54b42c541bcae85c7eef593a741e17876e4690a1f365a581f3f23006d44c563834a738758e008e1c26
+x-client-id: 64c295041b89613bbad30566
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGMyOTUwNDFiODk2MTNiYmFkMzA1NjYiLCJlbWFpbCI6InNob3B0aXBqczA5QGdtYWlsLmNvbSIsImlhdCI6MTY5MDY1MjA1OSwiZXhwIjoxNjkwODI0ODU5fQ.qjwFtANCwVvsHjWveI3YuaeGClhyVlbC2TSfHcFQ4fM
+
+{
+  "product_name": "New Jeans #2",
+  "product_thumb": "product thumb",
+  "product_price":  50,
+  "product_description": "High quantity denim jeans",
+  "product_type":  "Clothing",
+  "product_shop": "64c295041b89613bbad30566",
+  "product_attributes":  {
+    "brand": "Levi's",
+    "size": "L",
+    "material": "Denim"
+  },
+  "product_quantity": "5"
+}
+
+### create
+POST {{url}}/product
+Content-Type: application/json
+x-api-key: 8a40c24d5d8f57c333d56637859cedf09aae0c5806fd4e54b42c541bcae85c7eef593a741e17876e4690a1f365a581f3f23006d44c563834a738758e008e1c26
+x-client-id: 64c295041b89613bbad30566
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGMyOTUwNDFiODk2MTNiYmFkMzA1NjYiLCJlbWFpbCI6InNob3B0aXBqczA5QGdtYWlsLmNvbSIsImlhdCI6MTY5MDY1MjA1OSwiZXhwIjoxNjkwODI0ODU5fQ.qjwFtANCwVvsHjWveI3YuaeGClhyVlbC2TSfHcFQ4fM
+
+{
+  "product_name": "Iphone 14 64gb",
+  "product_thumb": "product thumb",
+  "product_price":  500,
+  "product_description": "New product",
+  "product_type":  "Electronics",
+  "product_shop": "64c295041b89613bbad30566",
+  "product_attributes":  {
+    "manufacturer":  "apple",
+    "model": "ios16",
+    "color":  "purple"
+  },
+  "product_quantity": "5"
+}
