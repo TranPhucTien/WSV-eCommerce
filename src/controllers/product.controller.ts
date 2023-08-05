@@ -1,6 +1,5 @@
 import {NextFunction, Request, Response} from "express";
-import {CREATED, OK} from "../core/success.response";
-import accessService from "../services/access.service";
+import {CREATED} from "../core/success.response";
 import productService from "../services/product.service";
 
 class ProductController {

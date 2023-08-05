@@ -3,5 +3,6 @@ declare namespace Express {
         objKey?: any;
         keyStore?: any;
         user?: any;
+        refreshToken?: any;
     }
 }

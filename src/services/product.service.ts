@@ -50,7 +50,7 @@ class Product {
 
     // create new product
     async createProduct(product_id: Types.ObjectId) {
-        return await product.create({ ...this, _id: product_id});
+        return await product.create({...this, _id: product_id});
     }
 }
 

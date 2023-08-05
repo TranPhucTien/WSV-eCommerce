@@ -7,7 +7,13 @@ class SuccessResponse {
     public metadata;
     public options;
 
-    constructor({message = ReasonPhrases.OK, statusCode = StatusCodes.OK, reasonStatusCode = ReasonPhrases.OK, metadata = {}, options = {}}) {
+    constructor({
+                    message = ReasonPhrases.OK,
+                    statusCode = StatusCodes.OK,
+                    reasonStatusCode = ReasonPhrases.OK,
+                    metadata = {},
+                    options = {}
+                }) {
         this.message = message;
         this.status = statusCode;
         this.metadata = metadata;
@@ -21,7 +27,7 @@ class SuccessResponse {
 }
 
 class OK extends SuccessResponse {
-    constructor({message = ReasonPhrases.OK, statusCode = StatusCodes.OK, metadata  = {}, options = {}}) {
+    constructor({message = ReasonPhrases.OK, statusCode = StatusCodes.OK, metadata = {}, options = {}}) {
         super({message, metadata, options})
     }
 }

@@ -1,5 +1,4 @@
-import express, {NextFunction, Request} from "express";
-import accessController from "../../controllers/access.controller";
+import express from "express";
 import {authentication} from "../../auth/authUtils";
 import asyncHandler from "../../helpers/asyncHandler";
 import productController from "../../controllers/product.controller";

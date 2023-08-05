@@ -1,14 +1,24 @@
 import {NextFunction, Request, Response} from "express";
-import AccessService from "../services/access.service";
-import {CREATED, OK} from "../core/success.response";
 import accessService from "../services/access.service";
+import {CREATED, OK} from "../core/success.response";
 
 class AccessController {
 
     handlerRefreshToken = async (req: Request, res: Response, next: NextFunction) => {
+        // v1
+        // new OK({
+        //     message: "get token success",
+        //     metadata: await accessService.handlerRefreshToken(req.body.refreshToken)
+        // }).send(res)
+
+        // v2 fix, no need access token
         new OK({
             message: "get token success",
-            metadata: await accessService.handlerRefreshToken(req.body.refreshToken)
+            metadata: await accessService.handlerRefreshTokenV2({
+                refreshToken: req.refreshToken,
+                user: req.user,
+                keyStore: req.keyStore
+            })
         }).send(res)
     }
 

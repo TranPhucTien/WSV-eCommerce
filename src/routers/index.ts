@@ -1,4 +1,4 @@
-import express, {NextFunction, Request} from "express";
+import express from "express";
 import routerAccess from "./access"
 import routerProduct from "./product"
 import {apiKey, permission} from "../auth/checkAuth"

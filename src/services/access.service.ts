@@ -1,17 +1,16 @@
 import shopModule from "../models/shop.module";
 import bcrypt from "bcrypt"
 import crypto from "node:crypto"
-import KeyTokenService, {IKeyTokenPayload} from "./keyToken.service";
+import KeyTokenService from "./keyToken.service";
+import keyTokenService, {IKeyTokenPayload} from "./keyToken.service";
 import {createTokenPair, verifyJWT} from "../auth/authUtils";
 import {getInfoData} from "../utils"
 import {AuthFailureError, BadRequestError, ForBiddenError, NotFoundError} from "../core/error.response";
 import ShopService from "./shop.service";
-import ShopModule from "../models/shop.module";
-import keyTokenService from "./keyToken.service";
-import KeyTokenModule, {IKeyToken} from "../models/keyToken.module";
 import shopService from "./shop.service";
+import keyTokenModule, {IKeyToken} from "../models/keyToken.module";
 import {IPayloadTokenPair} from "../interfaces/payload.interface"
-import {Types} from "mongoose";
+import {Model, Types, Document} from "mongoose";
 
 const RoleShop = {
     SHOP: "SHOP",
@@ -20,39 +19,39 @@ const RoleShop = {
     ADMIN: "ADMIN"
 }
 
+interface IRefreshTokenPayload {
+    refreshToken: string;
+    user: IPayloadTokenPair
+    keyStore: Document<unknown, {}, IKeyToken> & IKeyToken & Required<{_id: Types.ObjectId}>
+}
+
 class AccessService {
 
-    static handlerRefreshToken = async (refreshToken: string) => {
-        // Check this token used
-        const foundToken = await KeyTokenService.findByRefreshTokenUsed(refreshToken);
-        if (foundToken) {
-            // decode xem la thang nao
-            const { userId, email } = await verifyJWT(refreshToken, foundToken.privateKey) as IKeyTokenPayload;
-            console.log({userId, email})
-            // xoa tat ca key token trong store
-            await keyTokenService.deleteKeyById(userId);
-            throw new ForBiddenError("Some thing wrong happen! please login")
+    static handlerRefreshTokenV2 = async ({refreshToken, user, keyStore} : IRefreshTokenPayload) => {
+        const {userId, email} = user;
+
+        if (keyStore.refreshTokensUsed.includes(refreshToken)) {
+            await KeyTokenService.deleteKeyById(userId)
+            throw new ForBiddenError("Something wrong happen, please relogin")
         }
 
-        const holderToken = await KeyTokenService.findByRefreshToken(refreshToken);
-        if (!holderToken) {
+        if (keyStore.refreshToken !== refreshToken) {
             throw new AuthFailureError("Shop not registered");
         }
 
-        // verify token
-        const { userId, email } = await verifyJWT(refreshToken, holderToken.privateKey) as IPayloadTokenPair;
-        console.log({userId, email})
         // check userId
-        const foundShop = await shopService.findByEmail({ email: email as string });
+        const foundShop = await shopService.findByEmail({email: email as string});
         if (!foundShop) {
             throw new AuthFailureError("Shop not registered");
         }
 
         // create new token
-        const tokens = await createTokenPair({userId: new Types.ObjectId(userId), email}, holderToken.publicKey, holderToken.privateKey);
+        const tokens = await createTokenPair({
+            userId: new Types.ObjectId(userId),
+            email
+        }, keyStore.publicKey, keyStore.privateKey);
 
-        // update token
-        await holderToken.updateOne({
+        await (keyStore).updateOne({
             $set: {
                 refreshToken: tokens.refreshToken
             },
@@ -67,13 +66,65 @@ class AccessService {
         }
     }
 
-    static logout = async ({keyStore} : {keyStore: IKeyToken}) => {
+    // static handlerRefreshToken = async (refreshToken: string) => {
+    //     // Check this token used
+    //     const foundToken = await KeyTokenService.findByRefreshTokenUsed(refreshToken);
+    //     if (foundToken) {
+    //         // decode xem la thang nao
+    //         const {userId, email} = await verifyJWT(refreshToken, foundToken.privateKey) as IKeyTokenPayload;
+    //         console.log({userId, email})
+    //         // xoa tat ca key token trong store
+    //         await keyTokenService.deleteKeyById(userId);
+    //         throw new ForBiddenError("Some thing wrong happen! please login")
+    //     }
+    //
+    //     const holderToken = await KeyTokenService.findByRefreshToken(refreshToken);
+    //     if (!holderToken) {
+    //         throw new AuthFailureError("Shop not registered");
+    //     }
+    //
+    //     // verify token
+    //     const {userId, email} = await verifyJWT(refreshToken, holderToken.privateKey) as IPayloadTokenPair;
+    //     console.log({userId, email})
+    //     // check userId
+    //     const foundShop = await shopService.findByEmail({email: email as string});
+    //     if (!foundShop) {
+    //         throw new AuthFailureError("Shop not registered");
+    //     }
+    //
+    //     // create new token
+    //     const tokens = await createTokenPair({
+    //         userId: new Types.ObjectId(userId),
+    //         email
+    //     }, holderToken.publicKey, holderToken.privateKey);
+    //
+    //     // update token
+    //     await holderToken.updateOne({
+    //         $set: {
+    //             refreshToken: tokens.refreshToken
+    //         },
+    //         $addToSet: {
+    //             refreshTokensUsed: refreshToken
+    //         }
+    //     })
+    //
+    //     return {
+    //         user: {userId, email},
+    //         tokens
+    //     }
+    // }
+
+    static logout = async ({keyStore}: { keyStore: IKeyToken }) => {
         const delKey = await keyTokenService.removeKeyById(keyStore._id.toString());
         return {delKey};
     }
 
 
-    static login = async ({email, password, refreshToken = null} : {email: string, password: string, refreshToken: string | null}) => {
+    static login = async ({email, password, refreshToken = null}: {
+        email: string,
+        password: string,
+        refreshToken: string | null
+    }) => {
         // 1. Check email in db
         const foundShop = await ShopService.findByEmail({email});
         if (!foundShop) {

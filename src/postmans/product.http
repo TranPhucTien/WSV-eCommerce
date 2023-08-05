@@ -8,11 +8,11 @@ authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGMyOTUwNDFi
 {
   "product_name": "New Jeans #2",
   "product_thumb": "product thumb",
-  "product_price":  50,
+  "product_price": 50,
   "product_description": "High quantity denim jeans",
-  "product_type":  "Clothing",
+  "product_type": "Clothing",
   "product_shop": "64c295041b89613bbad30566",
-  "product_attributes":  {
+  "product_attributes": {
     "brand": "Levi's",
     "size": "L",
     "material": "Denim"
@@ -30,14 +30,14 @@ authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGMyOTUwNDFi
 {
   "product_name": "Iphone 14 64gb",
   "product_thumb": "product thumb",
-  "product_price":  500,
+  "product_price": 500,
   "product_description": "New product",
-  "product_type":  "Electronics",
+  "product_type": "Electronics",
   "product_shop": "64c295041b89613bbad30566",
-  "product_attributes":  {
-    "manufacturer":  "apple",
+  "product_attributes": {
+    "manufacturer": "apple",
     "model": "ios16",
-    "color":  "purple"
+    "color": "purple"
   },
   "product_quantity": "5"
 }

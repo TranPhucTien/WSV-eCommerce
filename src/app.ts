@@ -3,7 +3,6 @@ import morgan from "morgan";
 import helmet from "helmet";
 import compression from "compression";
 import connectDb from "./dbs/init.mongodb"
-import {checkOverload} from "./helpers/check.connect";
 import dotenv from "dotenv";
 import routers from "./routers";
 import {ErrorResponse} from "./core/error.response";
@@ -42,6 +41,7 @@ app.use((error: ErrorResponse, req: Request, res: Response, next: NextFunction) 
     return res.status(statusCode).json({
         status: "error",
         code: statusCode,
+        stack: error.stack,
         message: error.message || 'Internal server error'
     })
 })

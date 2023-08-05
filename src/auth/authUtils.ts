@@ -1,5 +1,5 @@
 import JWT from "jsonwebtoken";
-import { Types } from "mongoose"
+import {Types} from "mongoose"
 import {NextFunction, Request, Response} from "express";
 import asyncHandler from "../helpers/asyncHandler";
 import {AuthFailureError, NotFoundError} from "../core/error.response";
@@ -13,10 +13,14 @@ interface ITokenPair {
 const HEADER = {
     API_KEY: 'x-api-key',
     AUTHORIZATION: 'authorization',
-    CLIENT_ID: 'x-client-id'
+    CLIENT_ID: 'x-client-id',
+    REFRESH_TOKEN: 'x-refresh-token'
 }
 
-const createTokenPair = async (payload: {userId: Types.ObjectId, email: string}, publicKey: JWT.Secret, privateKey: JWT.Secret) : Promise<ITokenPair> => {
+const createTokenPair = async (payload: {
+    userId: Types.ObjectId,
+    email: string
+}, publicKey: JWT.Secret, privateKey: JWT.Secret): Promise<ITokenPair> => {
     try {
         // access token
         const accessToken = JWT.sign(payload, publicKey, {
@@ -35,9 +39,9 @@ const createTokenPair = async (payload: {userId: Types.ObjectId, email: string},
             }
         })
 
-        return { accessToken, refreshToken }
+        return {accessToken, refreshToken}
     } catch (e) {
-        return { accessToken: null, refreshToken: null }
+        return {accessToken: null, refreshToken: null}
     }
 }
 
@@ -78,12 +82,71 @@ const authentication = asyncHandler(async (req: Request, res: Response, next: Ne
     }
 })
 
-const verifyJWT = (token: string, keySecret: string)=> {
+const authenticationV2 = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    // 1. Check userId missing
+    const userId = req.headers[HEADER.CLIENT_ID];
+    if (!userId) {
+        throw new NotFoundError("Not found userId");
+    }
+
+    // 2. get access token
+    const keyStore = await KeyTokenService.findByUserId(userId as string);
+    if (!keyStore) {
+        throw new NotFoundError("Not found keystore");
+    }
+
+    // 3. check refresh token
+    if (req.headers[HEADER.REFRESH_TOKEN]) {
+        try {
+            // 4. check user in dbs
+            const refreshToken = req.headers[HEADER.REFRESH_TOKEN] as string
+            const decodeUser = JWT.verify(refreshToken, keyStore.privateKey)
+            if (userId !== (decodeUser as IKeyTokenPayload).userId) {
+                throw new AuthFailureError("Invalid Request");
+            }
+
+            // 5. check key store with this userId
+            req.keyStore = keyStore;
+            req.user = decodeUser; // {userId, email}
+            req.refreshToken = refreshToken
+
+            // 6. Ok all
+            return next()
+        } catch (e) {
+            throw e
+        }
+    }
+
+    const accessToken = req.headers[HEADER.AUTHORIZATION] as string
+    if (!accessToken) {
+        throw new AuthFailureError("Not authorization");
+    }
+
+    try {
+        // 4. check user in dbs
+        const decodeUser = JWT.verify(accessToken, keyStore.publicKey)
+        if (userId !== (decodeUser as IKeyTokenPayload).userId) {
+            throw new AuthFailureError("Invalid Request");
+        }
+
+        // 5. check key store with this userId
+        req.keyStore = keyStore;
+        req.user = decodeUser; // {userId, email}
+
+        // 6. Ok all
+        return next()
+    } catch (e) {
+        throw e
+    }
+})
+
+const verifyJWT = (token: string, keySecret: string) => {
     return JWT.verify(token, keySecret);
 }
 
 export {
     createTokenPair,
     authentication,
+    authenticationV2,
     verifyJWT
 }

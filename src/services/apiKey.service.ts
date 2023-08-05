@@ -1,7 +1,6 @@
 import apiKeyModule from "../models/apiKey.module";
-import crypto from "crypto";
 
-const findById = async ( key: string ) => {
+const findById = async (key: string) => {
     // const keyHashed = crypto.randomBytes(64).toString('hex')
     // const newKey = await apiKeyModule.create({ key: keyHashed, permissions: ['0000']})
     // console.log("newKey: ", newKey)

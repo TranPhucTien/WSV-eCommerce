@@ -1,4 +1,4 @@
-import {model, Schema, Types} from "mongoose";
+import {model, Schema, Types, Document} from "mongoose";
 
 const DOCUMENT_NAME = "Key"
 const COLLECTION_NAME = "Keys"
@@ -14,7 +14,7 @@ export interface IKeyToken {
     updatedAt?: Date
 }
 
-const keyTokenScheme = new Schema({
+const keyTokenSchema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
         required: true,
@@ -41,4 +41,4 @@ const keyTokenScheme = new Schema({
     timestamps: true
 })
 
-export default model<IKeyToken>(DOCUMENT_NAME, keyTokenScheme)
+export default model<IKeyToken>(DOCUMENT_NAME, keyTokenSchema)
